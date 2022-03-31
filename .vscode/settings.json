@@ -23,4 +23,8 @@
             "snippet": "ns-template"
         },
     ],
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.showPushSuccessNotification": true,
+    "bitburner.showFileWatcherEnabledNotification": true,
+    "bitburner.authToken": "VwczjRTFtxZa2vD6/jBWW45ApGRJIXzpwLP4i+ZH5xz0/9VUZh2qzp3XEh3Cbgch",
 }
