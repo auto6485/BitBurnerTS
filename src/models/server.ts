@@ -1,9 +1,9 @@
 export interface ControlledServers {
-    host: string
-    availableRam: number;
+  host: string
+  availableRam: number;
 }
 
 export interface ServerNotification {
-    host: string;
-    status: 'rooted' | 'weakened' | 'grown' | 'hacked';
+  host: string;
+  status: 'recycle' | 'rooted' | 'weakened' | 'grown' | 'hacked';
 }
