@@ -1,8 +1,8 @@
 import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
-    const [target] = ns.args;
+    const target = ns.args[0].toString();
     while (true) {
-        await ns.weaken(target.toString());
+        await ns.weaken(target);
     }
 }

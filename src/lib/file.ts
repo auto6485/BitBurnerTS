@@ -33,3 +33,8 @@ export function readJson(ns: NS, filePath: string): GenericObject | string[] {
 export function writeJson(ns: NS, filePath: string, fileContents: GenericObject | string[]): Promise<void> {
   return ns.write(filePath, JSON.stringify(fileContents, replacer), 'w');
 }
+
+export function ressetAllDataFiles(ns: NS): void {
+    ns.rm('/data/rootedHosts.txt');
+    ns.rm('/data/controlledHosts.txt');
+}
