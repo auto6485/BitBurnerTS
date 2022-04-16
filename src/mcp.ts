@@ -1,24 +1,21 @@
 import { NS } from '@ns'
-import { ressetAllDataFiles } from '/lib/file'
-import { disableLogs } from '/lib/logs';
-import { shortId } from '/lib/uuid';
+import { BitServer, ServerState } from '/models/server';
+import { disableLogs } from '/utils/logs';
 
 const reservedHomeRam = 64;
 
-let seenHosts: string[] = []; // every server out there
-let controlledHosts: string[] = []; // servers that can run scripts (home, purchased, hacked, etc)
-const scannedHosts: string[] = []; // servers that need evaluated
-const hackedHosts: string[] = []; // servers that have been hacked, but not processed
-let purchasedHosts: string[] = []; // servers that need evaluated
-
-const weakeningHosts: string[] = []; // servers that are being weakened
-const growingHosts: string[] = []; // servers that are being weakened
-const hackingHosts: string[] = []; // servers that are being hacked
+const hosts: BitServer[] = [];
+let currentScans: string[] = [];
+let loopCoutner = 0;
 
 const scriptPaths = {
     grow: '/processes/grow.js',
     hack: '/processes/hack.js',
     weaken: '/processes/weaken.js',
+
+    growOnce: '/processes/grow.js',
+    hackOnce: '/processes/hack.js',
+    weakenOnce: '/processes/weaken.js',
 
     touch: '/spider/touch.js',
     watchSecurity: '/spider/watch-security.js',
@@ -30,53 +27,78 @@ export async function main(ns: NS): Promise<void> {
     disableLogs(ns);
     ns.clearLog();
 
-    controlledHosts = ['home'].concat(ns.getPurchasedServers());
-    seenHosts = ['darkweb'].concat(controlledHosts);
+    //puchase servers
 
     while (true) {
-        purchasedHosts = ns.getPurchasedServers();
-        recursiveScan(ns, 'home'); // scan the full network
-        evaluateScans(ns);
-        evaluateHacked(ns);
+        evaluateOwnedServers(ns);
 
+        // this is a little expensive, so run it less often
+        if (loopCoutner % 10) {
+            currentScans = [];
+            recursiveScan(ns, 'home'); // scan the full network
+        }
+
+        evaluateHackingServers(ns);
         weakenHosts(ns);
 
         // without sleep, the game crashes
+        loopCoutner++;
         await ns.sleep(10000);
+    }
+}
+
+function evaluateOwnedServers(ns: NS) {
+    if (!hosts.some(host => host.host === 'darkweb')) {
+        hosts.push(new BitServer('darkweb', ServerState.Owned, ns.getServerMaxRam('darkweb'), 0));
+    }
+
+    // TODO: update existing to update tracked ram
+    if (!hosts.some(host => host.host === 'home')) {
+        hosts.push(new BitServer('home', ServerState.Owned, ns.getServerMaxRam('home'), 0));
+    }
+
+    const servers = ns.getPurchasedServers();
+    while (servers.length > 0) {
+        const server = servers.shift() ?? '';
+
+        if (!hosts.some(host => host.host === server)) {
+            hosts.push(new BitServer(server, ServerState.Owned, ns.getServerMaxRam(server), 0));
+        }
     }
 }
 
 function recursiveScan(ns: NS, host: string) {
     for (const scan of ns.scan(host)) {
-        if (scan === 'home' || scan === 'darkweb' || purchasedHosts.includes(scan)) {
-            continue;
-        }
-
-        if (!seenHosts.includes(scan)) {
-            seenHosts.push(scan);
-        }
-
-        // if aren't actively processing the server, add it for evaluation
-        if (!controlledHosts.includes(scan) && !scannedHosts.includes(scan) &&
-            !hackedHosts.includes(scan) && !weakeningHosts.includes(scan) && !growingHosts.includes(scan) && !hackingHosts.includes(scan)) {
-            scannedHosts.push(scan);
+        if (!hosts.some(host => host.host === scan)) {
+            hosts.push(new BitServer(scan, ServerState.Scanned, ns.getServerMaxRam(scan), 0));
         }
 
         // scan as much as we can to expand the host list.
-        recursiveScan(ns, scan);
+        if (!currentScans.includes(scan)) {
+            currentScans.push(scan);
+            recursiveScan(ns, scan);
+        }
     }
 }
 
-function evaluateScans(ns: NS) {
-    const scans = scannedHosts;
-    for (const scan of scans) {
-        if (hackServer(ns, scan)) {
-            //server is newly hacked            
-            hackedHosts.push(scan);
-            scannedHosts.pop(scan);
+function evaluateHackingServers(ns: NS) {
+    for (const host of hosts.filter(host => host.state === ServerState.Nuking)) {
+        // not sure if the hack can fail, but verify just incase
+        if (ns.hasRootAccess(host.host)) {
+            host.state = ServerState.Nuked;
+        } else {
+            // retry the hack
+            host.state = ServerState.Scanned;
+        }
+    }
 
-            //incase we have stuff already running from a previous execution 
-            ns.killall(scan);
+    for (const host of hosts.filter(host => host.state === ServerState.Scanned)) {
+        if (hackServer(ns, host.host)) {
+            // hack isn't guaranteed:
+            host.state = ServerState.Nuking;
+
+            // clean up anything previously running
+            ns.killall(host.host);
         }
     }
 }
@@ -123,38 +145,31 @@ function hackServer(ns: NS, target: string): boolean {
     return true;
 }
 
-function evaluateHacked(ns: NS): void {
-    const targets = hackedHosts;
-    for (const target in targets) {
-        const serverMaxMoney = ns.getServerMaxMoney(target);
+function weakenHosts(ns: NS) {
+    const homeRam = ns.getServerMaxRam('home');
+    const weakeningCount = hosts.filter(host => host.state === ServerState.Weakening).length;
 
-        // some servers have no money, so no need to weaken / grow / hack them.
-        if (serverMaxMoney > 0) {
-            weakeningHosts.push(target);
+    for (const host of hosts.filter(host => host.state === ServerState.Weakening)) {
+        if (homeRam < 8192 && weakeningCount >= 2) {
+            continue;
+        } else if (homeRam < 65536 && weakeningCount >= 3) {
+            continue;
         }
 
-        hackedHosts.splice(target, 1);
-    }
-}
-
-function weakenHosts(ns: NS) {
-    const targets = weakeningHosts;
-    for (const target in targets) {
-        const currentSecurityLevel = ns.getServerSecurityLevel(target);
-        const minimumSecurityLevel = ns.getServerMinSecurityLevel(target);
+        const currentSecurityLevel = ns.getServerSecurityLevel(host.host);
+        const minimumSecurityLevel = ns.getServerMinSecurityLevel(host.host);
         const isAlreadyWeakened = currentSecurityLevel < 3 + minimumSecurityLevel;
 
-        if (!isAlreadyWeakened) {
-            const weakenThreadCount = Math.ceil(((currentSecurityLevel - minimumSecurityLevel) / 0.05));
-            execProcess(ns, scriptPaths.weaken, 'home', weakenThreadCount, [target]);
+        if (isAlreadyWeakened) {
+            host.state = ServerState.Weakened;
         } else {
-            weakeningHosts.pop(target);
-            growingHosts.push(target);
+            const weakenThreadCount = Math.ceil(((currentSecurityLevel - minimumSecurityLevel) / 0.05));
+            execProcess(ns, scriptPaths.weaken, 'home', weakenThreadCount, [host.host]);
         }
     }
 }
 
-function execProcess(ns, fileName, host, threads = 1, args) {
+function execProcess(ns: NS, fileName: string, host: string, threads = 1, args) {
     const ramPerThread = ns.getScriptRam(fileName, 'home');
     const maxRam = ns.getServerMaxRam(host);
     const usedRam = ns.getServerUsedRam(host);

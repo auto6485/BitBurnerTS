@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 
-export async function main(ns : NS) : Promise<void> {
+export async function main(ns: NS): Promise<void> {
     let i = 1;
     while (i <= 20) {
         const ramAmount = Math.pow(2, i);

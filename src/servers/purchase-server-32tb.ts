@@ -1,10 +1,10 @@
 import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
-    const intervalSeconds = 30 * 10;
+    const intervalSeconds = 10;
     ns.disableLog('sleep');
     ns.disableLog('getServerMoneyAvailable');
-    const ram = 128;
+    const ram = 32768;
 
     let purchasedServerCount = ns.getPurchasedServers().length;
 
