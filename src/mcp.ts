@@ -145,7 +145,7 @@ function hackServer(ns: NS, target: string): boolean {
     return true;
 }
 
-function weakenHosts(ns: NS) {
+function weakenHosts(ns: NS): void {
     const homeRam = ns.getServerMaxRam('home');
     const weakeningCount = hosts.filter(host => host.state === ServerState.Weakening).length;
 
@@ -164,12 +164,21 @@ function weakenHosts(ns: NS) {
             host.state = ServerState.Weakened;
         } else {
             const weakenThreadCount = Math.ceil(((currentSecurityLevel - minimumSecurityLevel) / 0.05));
-            execProcess(ns, scriptPaths.weaken, 'home', weakenThreadCount, [host.host]);
+            execProcess(ns, scriptPaths.weakenOnce, 'home', weakenThreadCount, [host.host]);
         }
     }
 }
 
-function execProcess(ns: NS, fileName: string, host: string, threads = 1, args) {
+function growHosts(ns: NS) {
+    const homeRam = ns.getServerMaxRam('home');
+    const weakeningCount = hosts.filter(host => host.state === ServerState.Growing).length;
+
+    for (const host of hosts.filter(host => host.state === ServerState.Weakened)) {
+        //
+    }
+}
+
+function execProcess(ns: NS, fileName: string, host: string, threads = 1, args: string[]): void {
     const ramPerThread = ns.getScriptRam(fileName, 'home');
     const maxRam = ns.getServerMaxRam(host);
     const usedRam = ns.getServerUsedRam(host);
@@ -183,6 +192,6 @@ function execProcess(ns: NS, fileName: string, host: string, threads = 1, args) 
 
     if (threadsAvailable > 0) {
         // await ns.scp(fileName, "home", hostName);
-        return ns.exec(fileName, host, threadsAvailable, ...args);
+        ns.exec(fileName, host, threadsAvailable, ...args);
     }
 }
