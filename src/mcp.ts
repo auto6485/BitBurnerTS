@@ -40,6 +40,7 @@ export async function main(ns: NS): Promise<void> {
 
         evaluateHackingServers(ns);
         weakenHosts(ns);
+        growHosts(ns);
 
         // without sleep, the game crashes
         loopCoutner++;
@@ -147,10 +148,12 @@ function hackServer(ns: NS, target: string): boolean {
 
 function weakenHosts(ns: NS): void {
     const homeRam = ns.getServerMaxRam('home');
-    const weakeningCount = hosts.filter(host => host.state === ServerState.Weakening).length;
+    let weakeningCount = hosts.filter(host => host.state === ServerState.Weakening).length;
 
     for (const host of hosts.filter(host => host.state === ServerState.Weakening)) {
-        if (homeRam < 8192 && weakeningCount >= 2) {
+        if (homeRam < 2048 && weakeningCount >= 1) {
+            continue;
+        } else if (homeRam < 8192 && weakeningCount >= 2) {
             continue;
         } else if (homeRam < 65536 && weakeningCount >= 3) {
             continue;
@@ -165,15 +168,56 @@ function weakenHosts(ns: NS): void {
         } else {
             const weakenThreadCount = Math.ceil(((currentSecurityLevel - minimumSecurityLevel) / 0.05));
             execProcess(ns, scriptPaths.weakenOnce, 'home', weakenThreadCount, [host.host]);
+            weakeningCount++;
         }
     }
 }
 
 function growHosts(ns: NS) {
     const homeRam = ns.getServerMaxRam('home');
-    const weakeningCount = hosts.filter(host => host.state === ServerState.Growing).length;
+    let growingCount = hosts.filter(host => host.state === ServerState.Weakened).length;
 
     for (const host of hosts.filter(host => host.state === ServerState.Weakened)) {
+        if (homeRam < 2048 && growingCount >= 1) {
+            continue;
+        } else if (homeRam < 8192 && growingCount >= 2) {
+            continue;
+        } else if (homeRam < 65536 && growingCount >= 3) {
+            continue;
+        }
+
+        const threadsNeeded = Math.ceil(ns.growthAnalyze(host.host, 1));
+
+        const currentSecurityLevel = ns.getServerSecurityLevel(host.host);
+        const minimumSecurityLevel = ns.getServerMinSecurityLevel(host.host);
+        const isAlreadyWeakened = currentSecurityLevel < 3 + minimumSecurityLevel;
+
+        if (threadsNeeded === 0 && isAlreadyWeakened) {
+            host.state = ServerState.Grown;
+        } else if (threadsNeeded === 0 && !isAlreadyWeakened) {
+            // host is grown, but no longer properly weakened
+            host.state = ServerState.Weakening;
+        } else {
+            execProcess(ns, scriptPaths.growOnce, 'home', threadsNeeded, [host.host]);
+            host.state = ServerState.Growing;
+            growingCount++;
+        }
+    }
+}
+
+function hackHosts(ns: NS) {    
+    const homeRam = ns.getServerMaxRam('home');
+    let hackPercent = .1;
+
+    // todo: play with ratios
+    if (homeRam > 8192 ) {
+        hackPercent = .5;
+    } else if (homeRam  > 2048 ) {
+        hackPercent = .25;
+    }
+
+    // TODO: hosts by max money descending?  
+    for (const host of hosts.filter(host => host.state === ServerState.Grown)) {
         //
     }
 }
