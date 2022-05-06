@@ -7,15 +7,15 @@ export interface IBitServer {
 
 export class BitServer implements IBitServer {
     host = '';
-    state: ServerState = ServerState.Nuked;
+    state: ServerState = ServerState.Scanned;
     availableRam = 0;
     maxMoney = 0;
 
-    constructor(hostName: string, initialState: ServerState, ram: number, money: number) {
+    constructor(hostName: string, initialState: ServerState, ram: number, maxMoney: number) {
         this.host = hostName;
         this.state = initialState;
         this.availableRam = ram;
-        this.maxMoney = money;
+        this.maxMoney = maxMoney;
     }
 }
 

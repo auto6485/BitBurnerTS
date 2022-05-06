@@ -13,9 +13,11 @@ const scriptPaths = {
     hack: '/processes/hack.js',
     weaken: '/processes/weaken.js',
 
-    growOnce: '/processes/grow.js',
-    hackOnce: '/processes/hack.js',
-    weakenOnce: '/processes/weaken.js',
+    growOnce: '/processes/growOnce.js',
+    hackOnce: '/processes/hackOnce.js',
+    weakenOnce: '/processes/weakenOnce.js',
+
+    share: '/processes/share.js',
 
     touch: '/spider/touch.js',
     watchSecurity: '/spider/watch-security.js',
@@ -218,7 +220,7 @@ function hackHosts(ns: NS) {
 
     // TODO: hosts by max money descending?  
     for (const host of hosts.filter(host => host.state === ServerState.Grown)) {
-        //
+        const maxMoney = ns.getServerMaxMoney(host.host);
     }
 }
 

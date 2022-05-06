@@ -1,7 +1,13 @@
 import { NS } from '@ns'
 
+let breakEvenTime = 1;
+
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL");
+    
+    breakEvenTime = (ns.args[0] as number) || 1;
+    ns.tprint("break even time: " + breakEvenTime);
+
     while (ns.hacknet.numNodes() === 0) ns.hacknet.purchaseNode();
 
     let weakestIndex = 0;
@@ -128,4 +134,4 @@ async function waitTillCash(ns: NS, target: number) {
         await ns.sleep(5000);
 }
 
-const breakevenTime = 3600 * 1;//Time in seconds
+const breakevenTime = 3600 * breakEvenTime; //Time in seconds * hours
