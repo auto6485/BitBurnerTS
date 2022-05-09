@@ -26,5 +26,6 @@
     "bitburner.fileWatcher.enable": true,
     "bitburner.showPushSuccessNotification": true,
     "bitburner.showFileWatcherEnabledNotification": true,
-    "bitburner.authToken": "VwczjRTFtxZa2vD6/jBWW45ApGRJIXzpwLP4i+ZH5xz0/9VUZh2qzp3XEh3Cbgch",
+    //"bitburner.authToken": "VwczjRTFtxZa2vD6/jBWW45ApGRJIXzpwLP4i+ZH5xz0/9VUZh2qzp3XEh3Cbgch", // desktop
+    "bitburner.authToken": "P/8OKTX9iqc3pBLt7JZVaw/1hGjg/JuywjACLnNxy+hIsgCFV3igcM1S/b3i0i5k", // macbook
 }
