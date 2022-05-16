@@ -1,6 +1,4 @@
-import { NS } from '@ns'
-
-export async function main(ns: NS): Promise<void> {
+export async function main(ns) {
     //split single argument into multiple and instantiate arrays
     const myargs = ns.args[0].split(',');
     const servers = [];
@@ -8,7 +6,6 @@ export async function main(ns: NS): Promise<void> {
     const maxMoneys = [];
     const reqHackLev = [];
     let counter = 0;
-
     //for each pair of 4 (1 server and its parameters)
     for (let i = 0; (myargs.length / 4) > i; i++) {
         //calculate and push to appropriate array
@@ -18,7 +15,6 @@ export async function main(ns: NS): Promise<void> {
         reqHackLev.push(Number(myargs[(3 * counter) + (i + 3)]));
         counter++;
     }
-
     while (true) {
         let count = 0;
         //begin hack analyze
@@ -30,7 +26,7 @@ export async function main(ns: NS): Promise<void> {
             if (reqHackLev[count] <= ns.getHackingLevel()) {
                 if (ns.getServerSecurityLevel(server) > security) {
                     ns.print("weakening...");
-                    await ns.weaken(server)
+                    await ns.weaken(server);
                 }
                 //grow money if not enough money
                 else if (ns.getServerMoneyAvailable(server) < money) {
@@ -47,4 +43,4 @@ export async function main(ns: NS): Promise<void> {
         }
         await ns.sleep(1000);
     }
-} 
+}

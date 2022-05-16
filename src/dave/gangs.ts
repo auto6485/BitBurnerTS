@@ -60,7 +60,7 @@ const usefulPercentage = 0.75;
 const shouldProcessAscends = true;
 const desiredVigilanteToCrimeRatio = 2.0;
 const averageClashWinRequirement = 0.7;
-const currentGoal = OptimizeFor.Money;
+const currentGoal: OptimizeFor = OptimizeFor.Respect;
 
 let lastAscendCycle = -1000;
 let currentCycle = Cycles.Fighting;
@@ -260,6 +260,7 @@ function getOptimalGangTask(ns: NS, member: string): string {
     const acceptableCrimes = allCrimes.filter(c => vigiToCrimeRate(ns, member, c) > 2.0);
 
     let ordered: Array<string> = [];
+
     if (currentGoal === OptimizeFor.Money) {
         ordered = orderByDescending(acceptableCrimes, c => crimeMoney(ns, member, c));
     }

@@ -1,17 +1,13 @@
-import { NS } from '@ns'
-
-export async function main(ns: NS): Promise<void> {
+export async function main(ns) {
     //if no arguments provided tell the user how to use script.
     if (ns.args.length === 0) {
         ns.alert("Please include one or more arguments as server names to hack. The script will propogate across all servers and grow, weaken and hack the specified targets. As you get new hacking tools, kill all scripts and rerun from home.");
         return;
     }
-
     if (ns.args[0] === 1) {
         ns.args[0] = "n00dles";
         ns.args[1] = "foodnstuff";
     }
-
     if (ns.args[0] === 2) {
         ns.args[0] = "n00dles";
         ns.args[1] = "foodnstuff";
@@ -25,7 +21,6 @@ export async function main(ns: NS): Promise<void> {
         //ns.args[9] = "phantasy";
         //ns.args[10] = "silver-helix";
     }
-
     if (ns.args[0] === 3) {
         ns.args[0] = "n00dles";
         ns.args[1] = "foodnstuff"; //1
@@ -91,18 +86,15 @@ export async function main(ns: NS): Promise<void> {
         ns.args[61] = "fulcrumassets"; //	999
         ns.args[62] = "powerhouse-fitness"; //	1000
     }
-
     const ogArgs = ns.args;
     ns.toast('Running worm on ' + ns.getHostname());
-    const hostservers = ns.scan(ns.getHostname());                                                             //get all servers you can connect to
-    const scriptram = ns.getScriptRam('/earlygame/worm.js', 'home');                                                      //get ram for this script
-    const hackscriptram = ns.getScriptRam('/earlygame/hackservers.js', 'home');                                           //get ram for hack script
-    const avsram = ns.getServerMaxRam(ns.getHostname()) - ns.getServerUsedRam(ns.getHostname()) + scriptram;   //get available server ram for this server
-    const hsthreads = Math.floor(avsram / hackscriptram);                                                      //calculate usethreads for hack script for this server
-
+    const hostservers = ns.scan(ns.getHostname()); //get all servers you can connect to
+    const scriptram = ns.getScriptRam('/earlygame/worm.js', 'home'); //get ram for this script
+    const hackscriptram = ns.getScriptRam('/earlygame/hackservers.js', 'home'); //get ram for hack script
+    const avsram = ns.getServerMaxRam(ns.getHostname()) - ns.getServerUsedRam(ns.getHostname()) + scriptram; //get available server ram for this server
+    const hsthreads = Math.floor(avsram / hackscriptram); //calculate usethreads for hack script for this server
     await attackAll(hostservers, ns.getHostname());
-
-    if (hsthreads) {                                                                                          //if usethreads exists for this script, build args array of parameters based on this scripts args
+    if (hsthreads) { //if usethreads exists for this script, build args array of parameters based on this scripts args
         const hsargs = [];
         for (const argument of ns.args) {
             hsargs.push(argument);
@@ -110,26 +102,25 @@ export async function main(ns: NS): Promise<void> {
             hsargs.push(ns.getServerMaxMoney(argument));
             hsargs.push(ns.getServerRequiredHackingLevel(argument));
         }
-        if (ns.getHostname() != 'home') {                                                                       //copy hack script to this server and spawn script with threads and arguments as a single string
+        if (ns.getHostname() != 'home') { //copy hack script to this server and spawn script with threads and arguments as a single string
             await ns.scp('/earlygame/hackservers.js', 'home', ns.getHostname());
         }
         ns.spawn('/earlygame/hackservers.js', hsthreads, hsargs.toString());
     }
-
-    async function attackAll(servers: string[], host: string) {
+    async function attackAll(servers, host) {
         for (const server of servers) {
             await attack(server);
-            if (ns.getServerMaxRam(server) >= ns.getServerUsedRam(server) + scriptram) {                           //if the server has enough ram to run the worm script
+            if (ns.getServerMaxRam(server) >= ns.getServerUsedRam(server) + scriptram) { //if the server has enough ram to run the worm script
                 await worm(server);
-            } else {                                                                                               //if server can't run script, look at servers it can connect to, gain root, and run script there
+            }
+            else { //if server can't run script, look at servers it can connect to, gain root, and run script there
                 const moreservs = ns.scan(server);
                 moreservs.splice(moreservs.indexOf(host), 1);
                 await attackAll(moreservs, server);
             }
         }
     }
-
-    async function attack(server: string) {
+    async function attack(server) {
         let hacktoolnum = 0;
         //count and use hack tools owned if you don't have root
         if (!ns.hasRootAccess(server)) {
@@ -155,24 +146,20 @@ export async function main(ns: NS): Promise<void> {
                 hacktoolnum++;
             }
         }
-
         if (ns.getServerNumPortsRequired(server) <= hacktoolnum && !ns.hasRootAccess(server)) {
             ns.toast("nuking " + server);
             ns.nuke(server);
         }
-
         if (!ns.hasRootAccess(server)) {
             ns.toast("unable to gain root to " + server, "error");
         }
     }
-
-    async function worm(server: string | undefined) {
+    async function worm(server) {
         //copy WORM script to server and run
         if (!ns.fileExists('/earlygame/worm.js', server)) {
             ns.print('/earlygame/worm.js being copied to ' + server);
             await ns.scp('/earlygame/worm.js', 'home', server);
         }
-
         //if you don't see either script running on target server, run worm on it.
         if (!ns.scriptRunning('/earlygame/worm.js', server) && !ns.scriptRunning('/earlygame/hackservers.js', server)) {
             ns.print('running worm on ' + server);

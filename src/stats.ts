@@ -18,14 +18,16 @@ export async function main(ns: NS): Promise<void> {
 
             if (ns.getScriptIncome()[0] > 0) {
                 const args: string[] = []
-                headers.push('Hack Income (old): ');
+                headers.push('Hack Income: ');
                 values.push('   ' + ns.nFormat(ns.getScriptIncome('/scheduler/scheduler.js', 'home', ...args), '$0,0') + ' /s')
-                headers.push('Hack Income (new): ');
-                values.push('   ' + ns.nFormat(ns.getScriptIncome('scheduler.js', 'home', ...args), '$0,0') + ' /s')
+                // headers.push('Hack Income (new): ');
+                // values.push('   ' + ns.nFormat(ns.getScriptIncome('scheduler.js', 'home', ...args), '$0,0') + ' /s')
                 headers.push('Stock Income (basic): ');
                 values.push('   ' + ns.nFormat(ns.getScriptIncome('/garrett/stockmasterbasic.js', 'home', ...args), '$0,0') + ' /s')
                 headers.push('Stock Income (adv): ');
                 values.push('   ' + ns.nFormat(ns.getScriptIncome('/garrett/stockmaster.js', 'home', ...args), '$0,0') + ' /s')
+                // headers.push('Distributor: ');
+                // values.push('   ' + ns.nFormat(ns.getScriptIncome('/spider/distributor.js', 'home', ...args), '$0,0') + ' /s')
             }
 
             headers.push('HOME Ram Use: ')

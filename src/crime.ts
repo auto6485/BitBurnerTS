@@ -44,7 +44,17 @@ export async function main(ns: NS): Promise<void> {
     disableLogs(ns);
     const [crimeParam] = ns.args[0] as string || 'h';
     ns.tail();
-    while (true) {
-        await doCrime(ns, getCrime(crimeParam));
+
+    ns.print("crime param: " + crimeParam);
+
+    if (crimeParam === 'k' || crimeParam === "k") {
+        while (ns.heart.break() > -54000) {
+            ns.print("karma: " + ns.heart.break());
+            await doCrime(ns, getCrime('h'));
+        }
+    } else {
+        while (true) {
+            await doCrime(ns, getCrime(crimeParam));
+        }
     }
 }

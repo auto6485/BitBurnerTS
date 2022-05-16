@@ -234,10 +234,10 @@ export function throws(fn: (() => void)): boolean {
     return loaded;
 }
 
-export function crimeLibraryAvailable(ns: NS): boolean {
-    return throws(() => ns.getCrimeStats("Rob a Store"));
-}
+// export function crimeLibraryAvailable(ns: NS): boolean {
+//     return throws(() => ns.getCrimeStats("Rob a Store"));
+// }
 
-export function formulasAvailable(ns: NS): boolean {
-    return throws(() => ns.formulas.hacking.growTime(ns.getServer(ServerNames.Home), ns.getPlayer()));
-}
+// export function formulasAvailable(ns: NS): boolean {
+//     return throws(() => ns.formulas.hacking.growTime(ns.getServer(ServerNames.Home), ns.getPlayer()));
+// }
