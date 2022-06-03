@@ -5,5 +5,5 @@ export async function main(ns: NS): Promise<void> {
     purchasedServers.forEach((server) => {
         ns.killall(server);
         ns.deleteServer(server);
-    });
+    })
 }

@@ -10,10 +10,19 @@ export async function main(ns: NS): Promise<void> {
             const values = [];
 
             if (ns.gang.inGang()) {
-                // if (ns.gang.getGangInformation()['moneyGainRate'] > 0) {
                 headers.push("Gang Income: ");
                 values.push('   ' + ns.nFormat((5 * ns.gang.getGangInformation()['moneyGainRate']), '$0,0') + ' /s');
-                //}
+            }
+
+            const hacknetNodeCount = ns.hacknet.numNodes();
+            if (hacknetNodeCount > 0) {
+                let production = 0;
+                for (let i = 0; i < hacknetNodeCount; i++) {
+                    production += ns.hacknet.getNodeStats(i).production;
+                }
+
+                headers.push('Hacknet Income: ');
+                values.push('   ' + ns.nFormat(production, '$0,0') + ' /s');
             }
 
             if (ns.getScriptIncome()[0] > 0) {
@@ -33,18 +42,17 @@ export async function main(ns: NS): Promise<void> {
             headers.push('HOME Ram Use: ')
             values.push(ns.nFormat(ns.getServerUsedRam('home'), '0,0') + ' / ' + ns.nFormat(ns.getServerMaxRam('home'), '0,0'))
 
-            headers.push('----------------------')
-            values.push('--------------------')
+            headers.push('---------------------')
+            values.push('---------------------')
 
-            headers.push(ns.getPlayer()['city'])
-            values.push(ns.getPlayer()['location'])
+            // headers.push(ns.getPlayer()['city'])
+            // values.push(ns.getPlayer()['location'])
 
             hook0.innerText = headers.join(" \n");
             hook1.innerText = values.join("\n");
         } catch (err) {
             ns.print("ERROR: Update Skipped: " + String(err));
         }
-        await ns.sleep(500);
+        await ns.sleep(2000);
     }
 }
- 
