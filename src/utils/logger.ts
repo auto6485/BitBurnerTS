@@ -1,38 +1,51 @@
 import { NS } from '@ns';
 import { ScheduledHost } from '/models/procedure';
-import { percentMaxMoney } from '/utils/metrics';
+import { percentMaxMoney } from '/lib/metrics';
 
 const lastLogMessage: Map<string, number> = new Map();
 const logIntervalMs = 1000 * 60;
 const warnIntervalMs = 1000 * 10;
 const errorIntervalMs = 1000 * 2;
-const knownLogIntervals: { [key: string]: any } = {
+const knownLogIntervals: { [key: string]: number } = {
     'outOfMemory': 1000 * 120,
+    'schedulerReport': 1000 * 3,
+    'spiderReport': 1000 * 5,
 }
 
-function log(ns: NS, id: string, message: string, logInterval: number, bypassLogInterval = false): void {
+function log(ns: NS, id: string, message: string, logInterval: number, bypassLogInterval = false, output: 'console' | 'log' = 'log'): void {
     const lastLogTime = lastLogMessage.has(id) ? lastLogMessage.get(id) as number : 0;
     if (bypassLogInterval || (lastLogTime + (knownLogIntervals[id] ? knownLogIntervals[id] : logInterval) < Date.now())) {
         lastLogMessage.set(id, Date.now());
-        ns.tprint(message);
+        switch (output) {
+            default:
+            case 'log':
+                ns.print(message);
+                break;
+            case 'console':
+                ns.tprint(message);
+                break;
+        }
     }
 }
 
-function info(ns: NS, id: string, message: string, bypassLogInterval?: boolean): void {
-    log(ns, id, `INFO: ${message}`, logIntervalMs, bypassLogInterval);
+function info(ns: NS, id: string, message: string, output: 'console' | 'log' = 'log', bypassLogInterval?: boolean): void {
+    log(ns, id, `INFO: ${message}`, logIntervalMs, bypassLogInterval, output);
 }
 
-function warn(ns: NS, id: string, message: string, bypassLogInterval?: boolean): void {
-    log(ns, id, `WARN: ${message}`, warnIntervalMs, bypassLogInterval);
+function warn(ns: NS, id: string, message: string, output: 'console' | 'log' = 'log', bypassLogInterval?: boolean): void {
+    log(ns, id, `WARN: ${message}`, warnIntervalMs, bypassLogInterval, output);
 }
 
-function error(ns: NS, id: string, message: string, bypassLogInterval?: boolean): void {
-    log(ns, id, `ERROR: ${message}`, errorIntervalMs, bypassLogInterval);
+function error(ns: NS, id: string, message: string, output: 'console' | 'log' = 'log', bypassLogInterval?: boolean): void {
+    log(ns, id, `ERROR: ${message}`, errorIntervalMs, bypassLogInterval, output);
 }
 
 function scheduledHostStatus(ns: NS, scheduledHost: ScheduledHost): string {
-    let logLine = `\t* ${scheduledHost.assignedProcedure} - ${scheduledHost.runningProcedures.size} running - ${scheduledHost.host}`;
-    logLine += `${scheduledHost.assignedProcedure === 'prepare' ? `${percentMaxMoney(ns, scheduledHost.host)}% max money` : ''}`;
+    const minSecurity = ns.getServerSecurityLevel(scheduledHost.host);
+    const currentSecurity = ns.getServerSecurityLevel(scheduledHost.host);
+    const overMinSecPct = (((currentSecurity / minSecurity) * 100) - 100).toFixed(1);
+    let logLine = `${scheduledHost.host} - ${scheduledHost.assignedProcedure}, ${scheduledHost.runningProcedures.length} running`;
+    logLine += `\n\t% max money: ${percentMaxMoney(ns, scheduledHost.host)}\n\t% over min sec: ${overMinSecPct}`;
     return logLine;
 }
 
