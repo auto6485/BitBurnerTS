@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { scriptPaths } from '/config';
 import { BitServer, ServerState } from '/models/server';
 import { disableLogs } from '/utils/logs';
 
@@ -8,24 +9,8 @@ const hosts: BitServer[] = [];
 let currentScans: string[] = [];
 let loopCoutner = 0;
 
-const scriptPaths = {
-    grow: '/processes/grow.js',
-    hack: '/processes/hack.js',
-    weaken: '/processes/weaken.js',
-
-    growOnce: '/processes/growOnce.js',
-    hackOnce: '/processes/hackOnce.js',
-    weakenOnce: '/processes/weakenOnce.js',
-
-    share: '/processes/share.js',
-
-    touch: '/spider/touch.js',
-    watchSecurity: '/spider/watch-security.js',
-    spider: '/spider/spider.js',
-};
-
 export async function main(ns: NS): Promise<void> {
-    //ressetAllDataFiles(ns);
+    ressetAllDataFiles(ns);
     disableLogs(ns);
     ns.clearLog();
 
@@ -48,6 +33,9 @@ export async function main(ns: NS): Promise<void> {
         loopCoutner++;
         await ns.sleep(10000);
     }
+}
+function ressetAllDataFiles(ns: NS) {
+    // todo: add files here as they are created
 }
 
 function evaluateOwnedServers(ns: NS) {
