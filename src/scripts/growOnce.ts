@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { writePortJson } from '/utils/port';
+import { writePortJson } from '/lib/port';
 
 export async function main(ns: NS): Promise<void> {
   const target = ns.args[0] as string;

@@ -29,8 +29,8 @@ export async function main(ns: NS): Promise<void> {
                 const args: string[] = []
                 headers.push('Hack Income: ');
                 values.push('   ' + ns.nFormat(ns.getScriptIncome('/scheduler/scheduler.js', 'home', ...args), '$0,0') + ' /s')
-                // headers.push('Hack Income (new): ');
-                // values.push('   ' + ns.nFormat(ns.getScriptIncome('scheduler.js', 'home', ...args), '$0,0') + ' /s')
+                headers.push('Hack Income (new): ');
+                values.push('   ' + ns.nFormat(ns.getScriptIncome('scheduler.js', 'home', ...args), '$0,0') + ' /s')
                 headers.push('Stock Income (basic): ');
                 values.push('   ' + ns.nFormat(ns.getScriptIncome('/garrett/stockmasterbasic.js', 'home', ...args), '$0,0') + ' /s')
                 headers.push('Stock Income (adv): ');
@@ -43,7 +43,7 @@ export async function main(ns: NS): Promise<void> {
             values.push(ns.nFormat(ns.getServerUsedRam('home'), '0,0') + ' / ' + ns.nFormat(ns.getServerMaxRam('home'), '0,0'))
 
             headers.push('---------------------')
-            values.push('---------------------')
+            values.push('-----------------------')
 
             // headers.push(ns.getPlayer()['city'])
             // values.push(ns.getPlayer()['location'])
