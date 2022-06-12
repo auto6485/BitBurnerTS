@@ -52,6 +52,7 @@ export async function main(ns: NS): Promise<void> {
             ns.print("karma: " + ns.heart.break());
             await doCrime(ns, getCrime('h'));
         }
+        ns.run('/garrett/gangs.js');
     } else {
         while (true) {
             await doCrime(ns, getCrime(crimeParam));

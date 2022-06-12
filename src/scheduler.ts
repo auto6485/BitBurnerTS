@@ -173,6 +173,7 @@ async function queueAndExecuteProcedures(ns: NS, controlledHosts: string[], sche
 export async function main(ns: NS): Promise<void> {
     const [monitor] = ns.args as string[];
     disableLogs(ns);
+    ns.tail();
 
     const scheduledHosts = new Map<string, ScheduledHost>();
     monitoredHost = (readJson(ns, '/data/monitoredHost.txt') as string[])[0];

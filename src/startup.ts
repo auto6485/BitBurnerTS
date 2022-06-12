@@ -14,7 +14,8 @@ export async function main(ns: NS): Promise<void> {
 
     if (ns.gang.inGang()) {
         await ns.sleep(50);
-        ns.run('/dave/gangs.js');
+        // ns.run('/dave/gangs.js');
+        ns.run('/garrett/gangs.js');
     }
 
     // await ns.sleep(50);

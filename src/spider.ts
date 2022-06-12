@@ -75,6 +75,8 @@ async function spider(ns: NS) {
 
 export async function main(ns: NS): Promise<void> {
     disableLogs(ns);
+    ns.tail();
+
     // Save player information to file
     const player = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt');
     await writeJson(ns, '/data/playerInfo.txt', player);

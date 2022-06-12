@@ -70,6 +70,7 @@ export function autocomplete(data, args) {
 export async function main(ns) {
     const runOptions = getConfiguration(ns, argsSchema);
     if (!runOptions) return; // Invalid options, or ran in --help mode.
+    ns.tail();
 
     // If given the "liquidate" command, try to kill any versions of this script trading in stocks
     // NOTE: We must do this immediately before we start resetting / overwriting global state below (which is shared between script instances)
