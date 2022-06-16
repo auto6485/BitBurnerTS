@@ -3,7 +3,7 @@ import { writeJson } from '/lib/file';
 import { disableLogs, logger } from '/lib/logger';
 import asTable from '/lib/ascii-table.js';
 import { ServerStats } from '/models/server';
-import { getNsDataThroughFile } from '/garrett/helpers';
+import { getNsDataThroughFile } from '/helpers';
 
 // Managed by spider.js
 const serverInfo: { [key: string]: ServerStats } = {};
@@ -75,7 +75,7 @@ async function spider(ns: NS) {
 
 export async function main(ns: NS): Promise<void> {
     disableLogs(ns);
-    ns.tail();
+    // ns.tail();
 
     // Save player information to file
     const player = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/player-info.txt');
