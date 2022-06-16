@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { formatMoney, getStocksValue } from '/helpers';
 
 export async function main(ns: NS): Promise<void> {
     const doc = eval('document');
@@ -8,6 +9,15 @@ export async function main(ns: NS): Promise<void> {
         try {
             const headers = []
             const values = [];
+
+            const stkPortfolio = await getStocksValue(ns);
+            if (stkPortfolio > 0 && !doc.getElementById("stock-display-1")) {
+                headers.push("Stock Value: ");
+                values.push('   ' + ns.nFormat(stkPortfolio, '$0,0'));
+
+                headers.push('---------------------')
+                values.push('-----------------------')
+            }
 
             if (ns.gang.inGang()) {
                 headers.push("Gang Income: ");
@@ -26,24 +36,26 @@ export async function main(ns: NS): Promise<void> {
             }
 
             if (ns.getScriptIncome()[0] > 0) {
-                const args: string[] = []
+                const args: string[] = [];
                 headers.push('Hack Income: ');
-                values.push('   ' + ns.nFormat(ns.getScriptIncome('/scheduler/scheduler.js', 'home', ...args), '$0,0') + ' /s')
-                headers.push('Hack Income (new): ');
-                values.push('   ' + ns.nFormat(ns.getScriptIncome('scheduler.js', 'home', ...args), '$0,0') + ' /s')
-                headers.push('Stock Income (basic): ');
-                values.push('   ' + ns.nFormat(ns.getScriptIncome('/garrett/stockmasterbasic.js', 'home', ...args), '$0,0') + ' /s')
-                headers.push('Stock Income (adv): ');
-                values.push('   ' + ns.nFormat(ns.getScriptIncome('/garrett/stockmaster.js', 'home', ...args), '$0,0') + ' /s')
-                // headers.push('Distributor: ');
-                // values.push('   ' + ns.nFormat(ns.getScriptIncome('/spider/distributor.js', 'home', ...args), '$0,0') + ' /s')
+                values.push('   ' + ns.nFormat(ns.getScriptIncome('scheduler.js', 'home', ...args), '$0,0') + ' /s');
+
+                headers.push('Stock Income: ');
+                if (ns.getPlayer().hasTixApiAccess) {
+                    values.push('   ' + ns.nFormat(ns.getScriptIncome('stocktrader.js', 'home', ...args), '$0,0') + ' /s');
+                } else {
+                    values.push('   ' + ns.nFormat(ns.getScriptIncome('stockmaster.js', 'home', ...args), '$0,0') + ' /s');
+                }
             }
+
+            headers.push('---------------------')
+            values.push('-----------------------')
 
             headers.push('HOME Ram Use: ')
             values.push(ns.nFormat(ns.getServerUsedRam('home'), '0,0') + ' / ' + ns.nFormat(ns.getServerMaxRam('home'), '0,0'))
 
-            headers.push('---------------------')
-            values.push('-----------------------')
+            // headers.push('---------------------')
+            // values.push('-----------------------')
 
             // headers.push(ns.getPlayer()['city'])
             // values.push(ns.getPlayer()['location'])
