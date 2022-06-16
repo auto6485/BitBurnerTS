@@ -1,5 +1,5 @@
 import { Server } from '@ns'
-import { formatNumberShort } from 'garrett/helpers.js';
+import { formatNumberShort } from 'helpers.js';
 
 export interface IBitServer {
     host: string;
