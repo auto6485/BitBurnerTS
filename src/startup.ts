@@ -34,6 +34,9 @@ export async function main(ns: NS): Promise<void> {
         ns.run('bladeburner.js');
     }
 
+    ns.run('hashnet.js', 1, '-t');
+    ns.run('sell-hashes.js');
+
     await ns.sleep(500);
     ns.run('scheduler.js');
 }

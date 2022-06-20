@@ -5,6 +5,8 @@ export async function main(ns: NS): Promise<void> {
     ns.travelToCity("Sector-12");
     const combatTarget = ns.args[0];
     const charTarget = ns.args[1] || 0;
+    const hackTarget = ns.args[2] || 0;
+    ns.tail();
 
     while (ns.getPlayer().strength < combatTarget) {
         ns.gymWorkout('powerhouse gym', 'Strength');
@@ -27,8 +29,12 @@ export async function main(ns: NS): Promise<void> {
     }
 
     while (ns.getPlayer().charisma < charTarget) {
-        //ns.universityCourse('Rothman University', 'Leadership');
         ns.universityCourse("Rothman University", "Leadership", true)
+        await ns.sleep(10000);
+    }
+
+    while (ns.getPlayer().hacking < hackTarget) {
+        ns.universityCourse("Rothman University", "Algorithms", true)
         await ns.sleep(10000);
     }
     

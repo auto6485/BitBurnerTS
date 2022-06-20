@@ -57,8 +57,8 @@ export async function main(ns: NS): Promise<void> {
             // headers.push('---------------------')
             // values.push('-----------------------')
 
-            // headers.push(ns.getPlayer()['city'])
-            // values.push(ns.getPlayer()['location'])
+            headers.push(ns.getPlayer()['city'])
+            values.push(ns.getPlayer()['location'])
 
             hook0.innerText = headers.join(" \n");
             hook1.innerText = values.join("\n");
